@@ -1,4 +1,4 @@
-## Last.fm - add add flags next to artist names
+## Last.fm - add flags next to artist names
 
 ### What is this?
 
