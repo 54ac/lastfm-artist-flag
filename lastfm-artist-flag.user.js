@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name				Last.fm - add flags next to artist names
-// @version			1.0
+// @version			1.1
 // @description	Adds flag emojis next to artist names on Last.fm profile pages based on MusicBrainz data.
 // @author			54ac
 // @namespace		https://github.com/54ac
@@ -40,6 +40,7 @@ const getFlagEmoji = (countryCode) => {
 const makeFlagEl = (flag) => {
 	const flagEl = document.createElement("span");
 	flagEl.textContent = getFlagEmoji(flag);
+	flagEl.style.marginRight = "2px";
 	return flagEl;
 };
 
