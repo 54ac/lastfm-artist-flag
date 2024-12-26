@@ -4,8 +4,7 @@
 
 This is a simple userscript for Last.fm that adds flag emojis next to artist names based on MusicBrainz data.
 
-![Screenshot of the script in action.](https://github.com/user-attachments/assets/16ab89c3-f9dd-4e56-a99a-84ce9a5e313e)
-
+![Screenshot of the script in action.](https://github.com/user-attachments/assets/137952c6-e4df-455f-9a35-bdcd48c85f0b)
 
 ### How do I use this?
 
