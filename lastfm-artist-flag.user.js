@@ -1,27 +1,40 @@
 // ==UserScript==
 // @name				Last.fm - add flags next to artist names
-// @version			1.1
+// @version			1.2
 // @description	Adds flag emojis next to artist names on Last.fm profile pages based on MusicBrainz data.
 // @author			54ac
 // @namespace		https://github.com/54ac
 // @match				https://www.last.fm/user/*
 // @run-at			document-idle
-// @grant				GM.getValue
-// @grant				GM.setValue
+// @grant       GM_setValue
+// @grant       GM_getValue
+// @grant       GM_deleteValue
+// @grant       GM_registerMenuCommand
+// @grant       GM_unregisterMenuCommand
+// @grant       GM_addValueChangeListener
+// @require     https://github.com/PRO-2684/GM_config/releases/download/v1.2.2/config.min.js#md5=c45f9b0d19ba69bb2d44918746c4d7ae
 // @icon				https://www.last.fm/favicon.ico
 // @updateURL		https://raw.githubusercontent.com/54ac/lastfm-artist-flag/master/lastfm-artist-flag.user.js
 // @downloadURL	https://raw.githubusercontent.com/54ac/lastfm-artist-flag/master/lastfm-artist-flag.user.js
 // ==/UserScript==
 
 /*
-	"artist name": "country code", e.g.
+"artist name": "country code", e.g.
 
-	const overrideFlagDb = {
-		"The Radio Dept.": "SE",
-		"Cypress Hill": "US"
-	};
+{
+	"The Radio Dept.": "SE",
+	"Cypress Hill": "US"
+}
 */
-const overrideFlagDb = {};
+const configDesc = {
+	overrideFlagDb: {
+		name: "Override flag database",
+		type: "textarea",
+		value: "{}"
+	}
+};
+const config = new GM_config(configDesc, { immediate: false });
+const overrideFlagDb = JSON.parse(config.get("overrideFlagDb"));
 
 const cssArtistSelectors = [
 	".chartlist .chartlist-artist",
@@ -48,7 +61,7 @@ const artistQueue = [];
 let fetching = false;
 
 const mainObserver = new MutationObserver(async () => {
-	const flagDb = (await GM.getValue("flagDb")) || {};
+	const flagDb = GM_getValue("flagDb") || {};
 
 	const artistEl = document.querySelectorAll(cssArtistSelectors.join(","));
 
@@ -67,7 +80,7 @@ const mainObserver = new MutationObserver(async () => {
 	if (!artistQueue.length || fetching) return;
 
 	while (artistQueue.length) {
-		const artistName = artistQueue[0];
+		const [artistName] = artistQueue;
 		fetching = true;
 
 		const mbQuery = await fetch(
@@ -79,11 +92,11 @@ const mainObserver = new MutationObserver(async () => {
 			.catch((err) => console.error(err));
 
 		if (mbQuery && mbQuery.artists?.length) {
-			const mbArtist = mbQuery.artists[0];
+			const [mbArtist] = mbQuery.artists;
 			flagDb[artistName] = mbArtist.country || null;
 			if (flagDb[artistName] === "XW") flagDb[artistName] = null;
 
-			GM.setValue("flagDb", flagDb);
+			GM_setValue("flagDb", flagDb);
 
 			if (flagDb[artistName] !== null) {
 				for (const artist of Array.from(artistEl)) {
