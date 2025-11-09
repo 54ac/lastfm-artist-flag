@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name				Last.fm - add flags next to artist names
-// @version			1.2
+// @version			1.3
 // @description	Adds flag emojis next to artist names on Last.fm profile pages based on MusicBrainz data.
 // @author			54ac
 // @namespace		https://github.com/54ac
@@ -53,7 +53,7 @@ const getFlagEmoji = (countryCode) => {
 const makeFlagEl = (flag) => {
 	const flagEl = document.createElement("span");
 	flagEl.textContent = getFlagEmoji(flag);
-	flagEl.style.marginRight = "2px";
+	flagEl.style.marginRight = "4px";
 	return flagEl;
 };
 
@@ -72,8 +72,16 @@ const mainObserver = new MutationObserver(async () => {
 
 		const flag = overrideFlagDb[artistName] || flagDb[artistName];
 		if (flag !== undefined) {
-			if (flag !== null) artist.prepend(makeFlagEl(flag));
+			if (flag !== null)
+				artist.firstChild?.nodeType === Node.TEXT_NODE
+					? artist.replaceChild(makeFlagEl(flag), artist.firstChild)
+					: artist.prepend(makeFlagEl(flag));
 			artist.classList.add("mb-flag");
+			const artistName = artist.querySelector(".link-block-target");
+
+			// bleh workaround
+			if (getComputedStyle(artistName).display === "flex")
+				artistName.style.display = "inline-flex";
 		} else if (!artistQueue.includes(artistName)) artistQueue.push(artistName);
 	}
 
@@ -106,8 +114,17 @@ const mainObserver = new MutationObserver(async () => {
 					)
 						continue;
 
-					artist.prepend(makeFlagEl(flagDb[artistName]));
+					artist.firstChild?.nodeType === Node.TEXT_NODE
+						? artist.replaceChild(
+								makeFlagEl(flagDb[artistName]),
+								artist.firstChild
+							)
+						: artist.prepend(makeFlagEl(flagDb[artistName]));
 					artist.classList.add("mb-flag");
+
+					// bleh workaround
+					if (getComputedStyle(artistName).display === "flex")
+						artistName.style.display = "inline-flex";
 				}
 			}
 		}
